@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String   @db.VarChar(255)
+  content   String?
+  published Boolean  @default(false)
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+
+model Profile {
+  id     Int     @id @default(autoincrement())
+  bio    String?
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int     @unique
+}
+
+model User {
+  id      Int      @id @default(autoincrement())
+  email   String   @unique
+  name    String?
+  posts   Post[]
+  profile Profile?
+
+}
+
+model Template {
+  id              Int        @id @default(autoincrement())
+  client          Int
+  name            String
+  htmlTemplate    String     @db.MediumText
+  htmlJson        String     @db.MediumText
+  urlPreview      String
+  base64Image     String     @db.MediumText
+  customVariables String?    @db.TinyText
+  Campaign        Campaign[]
+}
+
+enum StatusCampaign {
+  PAUSADO
+  PROCESANDO
+  TERMINADO
+  ELIMINADO
+  ERROR
+}
+
+model Campaign {
+  id         Int            @id @default(autoincrement())
+  name       String         @db.VarChar(255)
+  subject    String         @db.VarChar(255)
+  schedule   Boolean        @default(false)
+  date       DateTime?
+  client     Int
+  idTemplate Int
+  role       StatusCampaign @default(PAUSADO)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  template   Template       @relation(fields: [idTemplate], references: [id])
+  DataEmail  DataEmail[]
+}
+
+model DataEmail {
+  id              	Int      @id @default(autoincrement())
+  indentity       	String   @db.VarChar(255)
+  fullName        	String   @db.VarChar(255)
+  email				String
+  customVariables	String?  @db.MediumText
+  idCampaign      	Int
+  campaign        	Campaign @relation(fields: [idCampaign], references: [id])
+
+}
