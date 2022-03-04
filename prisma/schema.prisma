@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,33 +5,6 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
-}
-
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String   @db.VarChar(255)
-  content   String?
-  published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
-}
-
-model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
-}
-
-model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
-  posts   Post[]
-  profile Profile?
-
 }
 
 model Template {
@@ -49,14 +19,6 @@ model Template {
   Campaign        Campaign[]
 }
 
-enum StatusCampaign {
-  PAUSADO
-  PROCESANDO
-  TERMINADO
-  ELIMINADO
-  ERROR
-}
-
 model Campaign {
   id         Int            @id @default(autoincrement())
   name       String         @db.VarChar(255)
@@ -65,20 +27,76 @@ model Campaign {
   date       DateTime?
   client     Int
   idTemplate Int
-  role       StatusCampaign @default(PAUSADO)
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
+  role       StatusCampaign @default(PAUSADO)
   template   Template       @relation(fields: [idTemplate], references: [id])
-  DataEmail  DataEmail[]
+  Jobs       Jobs[]
+  dataEmail  dataEmail[]
+
+  @@index([idTemplate], map: "Campaign_idTemplate_fkey")
 }
 
-model DataEmail {
-  id              	Int      @id @default(autoincrement())
-  indentity       	String   @db.VarChar(255)
-  fullName        	String   @db.VarChar(255)
-  email				String
-  customVariables	String?  @db.MediumText
-  idCampaign      	Int
-  campaign        	Campaign @relation(fields: [idCampaign], references: [id])
+model Jobs {
+  id         Int       @id @default(autoincrement())
+  idServer   Int?
+  idCampaign Int?
+  start      Int?
+  end        Int?
+  isRunning  Int?      @default(0) @db.TinyInt
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  Campaign   Campaign? @relation(fields: [idCampaign], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "campaign_fk")
 
+  @@index([idCampaign], map: "campaign")
+  @@index([idServer], map: "server")
+}
+
+model Servers {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(255)
+  host      String    @db.VarChar(255)
+  config    String    @db.LongText
+  sender    String    @db.LongText
+  active    Int?      @default(0) @db.TinyInt
+  createdAt DateTime? @default(now()) @db.Timestamp(0)
+  updatedAt DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model dataEmail {
+  id              Int      @id @default(autoincrement())
+  indentity       String   @db.VarChar(255)
+  fullName        String   @db.VarChar(255)
+  customVariables String?  @db.MediumText
+  idCampaign      Int
+  email           String
+  isSent          Int?     @default(0) @db.TinyInt
+  sentId          String?  @db.VarChar(255)
+  error           Int?     @default(0) @db.TinyInt
+  errorMessage    String?  @db.Text
+  Campaign        Campaign @relation(fields: [idCampaign], references: [id], map: "DataEmail_idCampaign_fkey")
+
+  @@index([idCampaign], map: "DataEmail_idCampaign_fkey")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model servidores_emails {
+  puerto_smtp           String? @db.VarChar(255)
+  servidor_correo       String? @db.VarChar(255)
+  Mail                  String? @db.VarChar(255)
+  Pass                  String? @db.VarChar(255)
+  accesos_web           String? @db.VarChar(255)
+  administracion_Zimbra String? @db.VarChar(255)
+  admin_usuario         String? @db.VarChar(255)
+  admin_pass            String? @db.VarChar(255)
+
+  @@ignore
+}
+
+enum StatusCampaign {
+  PAUSADO
+  PROCESANDO
+  TERMINADO
+  ELIMINADO
+  ERROR
 }

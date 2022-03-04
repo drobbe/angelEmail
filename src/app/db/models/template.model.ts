@@ -77,3 +77,23 @@ export const deteleTemplate = async (id) => {
         throw new Error(error);
     }
 };
+
+export const getTemplate = async (id) => {
+    try {
+        const data = await prisma.template.findUnique({
+            where: {
+                id: id
+            },
+            select: {
+                id: true,
+                name: true,
+                htmlTemplate: true,
+                customVariables: true
+            }
+        });
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw new Error(error);
+    }
+};

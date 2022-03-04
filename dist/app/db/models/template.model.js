@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deteleTemplate = exports.getTemplatesDB = exports.editTemplateDB = exports.insertTemplateDB = void 0;
+exports.getTemplate = exports.deteleTemplate = exports.getTemplatesDB = exports.editTemplateDB = exports.insertTemplateDB = void 0;
 const connection_1 = require("../../../app/db/connection");
 const insertTemplateDB = (template) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -80,4 +80,25 @@ const deteleTemplate = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.deteleTemplate = deteleTemplate;
+const getTemplate = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = yield connection_1.default.template.findUnique({
+            where: {
+                id: id
+            },
+            select: {
+                id: true,
+                name: true,
+                htmlTemplate: true,
+                customVariables: true
+            }
+        });
+        return data;
+    }
+    catch (error) {
+        console.error(error);
+        throw new Error(error);
+    }
+});
+exports.getTemplate = getTemplate;
 //# sourceMappingURL=template.model.js.map
