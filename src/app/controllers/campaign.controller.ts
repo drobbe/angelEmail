@@ -66,10 +66,10 @@ export const listCampaign = async (req: Request, res: Response) => {
     const campaigns = await getCampaignsClient(idClient);
 
     log('info', {
-        msg: 'Se ha creado correctamente la campaña ' + req.body.name
+        msg: 'Listado con éxito'
     });
 
-    return res.status(201).json({
+    return res.status(200).json({
         message: 'Todo OK',
         status: true,
         data: campaigns
