@@ -10,7 +10,6 @@ export type Campaign = {
 };
 
 export const insertCampaign = async (campaign: Campaign) => {
-    console.log({ campaign });
     try {
         const data = await prisma.campaign.create({
             data: {
@@ -19,6 +18,23 @@ export const insertCampaign = async (campaign: Campaign) => {
                 subject: campaign.subject,
                 idTemplate: Number(campaign.idTemplate),
                 schedule: Boolean(Number(campaign.schedule))
+            }
+        });
+
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const getCampaignsClient = async (idClient: number) => {
+    try {
+        const data = await prisma.campaign.findMany({
+            where: {
+                client: idClient,
+                NOT: {
+                    role: 'ELIMINADO'
+                }
             }
         });
 

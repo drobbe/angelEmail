@@ -9,10 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.insertDataEmail = exports.insertCampaign = void 0;
+exports.insertDataEmail = exports.getCampaignsClient = exports.insertCampaign = void 0;
 const connection_1 = require("../connection");
 const insertCampaign = (campaign) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log({ campaign });
     try {
         const data = yield connection_1.default.campaign.create({
             data: {
@@ -30,6 +29,23 @@ const insertCampaign = (campaign) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.insertCampaign = insertCampaign;
+const getCampaignsClient = (idClient) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = yield connection_1.default.campaign.findMany({
+            where: {
+                client: idClient,
+                NOT: {
+                    role: 'ELIMINADO'
+                }
+            }
+        });
+        return data;
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.getCampaignsClient = getCampaignsClient;
 const insertDataEmail = (dataEmail) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = yield connection_1.default.dataEmail.createMany({

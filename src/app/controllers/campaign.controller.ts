@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
-import { insertCampaign, insertDataEmail } from '../db/models/campaign.model';
+import {
+    getCampaignsClient,
+    insertCampaign,
+    insertDataEmail
+} from '../db/models/campaign.model';
 
 import { log } from '../utils/error.utils';
 import { getDataXlsx } from './file.controller';
@@ -51,6 +55,18 @@ export const createCampaign = async (req: any, res: Response) => {
     });
 };
 
-export const zz = (req: Request, res: Response) => {
-    console.log(req, res);
+export const listCampaign = async (req: Request, res: Response) => {
+    console.log(req.headers.idclient);
+    const idClient = Number(req.headers.idclient);
+    const campaigns = await getCampaignsClient(idClient);
+
+    log('info', {
+        msg: 'Se ha creado correctamente la campaña ' + req.body.name
+    });
+
+    return res.status(201).json({
+        message: 'Todo OK',
+        status: true,
+        data: campaigns
+    });
 };

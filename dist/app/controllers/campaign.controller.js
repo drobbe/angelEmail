@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zz = exports.createCampaign = void 0;
+exports.listCampaign = exports.createCampaign = void 0;
 const campaign_model_1 = require("../db/models/campaign.model");
 const error_utils_1 = require("../utils/error.utils");
 const file_controller_1 = require("./file.controller");
@@ -46,8 +46,18 @@ const createCampaign = (req, res) => __awaiter(void 0, void 0, void 0, function*
     });
 });
 exports.createCampaign = createCampaign;
-const zz = (req, res) => {
-    console.log(req, res);
-};
-exports.zz = zz;
+const listCampaign = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.headers.idclient);
+    const idClient = Number(req.headers.idclient);
+    const campaigns = yield (0, campaign_model_1.getCampaignsClient)(idClient);
+    (0, error_utils_1.log)('info', {
+        msg: 'Se ha creado correctamente la campaña ' + req.body.name
+    });
+    return res.status(201).json({
+        message: 'Todo OK',
+        status: true,
+        data: campaigns
+    });
+});
+exports.listCampaign = listCampaign;
 //# sourceMappingURL=campaign.controller.js.map
