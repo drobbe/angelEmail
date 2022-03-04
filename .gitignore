@@ -3,3 +3,4 @@ logs/*.log
 pm2-prod.json
 pm2-alpha.json
 uploads/*
+package-lock.json
