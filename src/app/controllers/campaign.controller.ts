@@ -145,21 +145,21 @@ export const playCampaign = async (req: Request, res: Response) => {
 
 		inicio += fin;
 		fin += limite;
-		if (cantRecords > fin) {
-			let peticion = {
-				id: objCampaign.id,
-				name: objCampaign.name,
-				template: objCampaign.idTemplate,
-				subject: objCampaign.subject,
-				recipients: recipients,
-				idServer: server
-			};
+		// if (cantRecords > fin) {
+		let peticion = {
+			id: objCampaign.id,
+			name: objCampaign.name,
+			template: objCampaign.idTemplate,
+			subject: objCampaign.subject,
+			recipients: recipients,
+			idServer: server
+		};
 
-			sendEmails(peticion);
-		} else {
-			console.log('Mas de los obtenidos');
-			return false;
-		}
+		sendEmails(peticion);
+		// } else {
+		//	console.log('Mas de los obtenidos');
+		//	return false;
+		// }
 	} // );
 
 	return res.status(200).json({
