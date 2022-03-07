@@ -128,7 +128,7 @@ export const playCampaign = async (req: Request, res: Response) => {
 
 	if (cantRecords <= limite) {
 		console.log('Menos del limite.');
-		serversId = serversId.split(0, 1);
+		serversId = [serversId[0]];
 		console.log('Servidores: ', serversId);
 	}
 
