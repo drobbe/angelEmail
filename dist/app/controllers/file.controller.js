@@ -63,8 +63,10 @@ const buildImagesTemplate = (templateName, html) => {
 		output: output,
 		html: html,
 		puppeteerArgs: {
-			args: ['--no-sandbox', '--disable-setuid-sandbox'],
-			headless: true
+			options: {
+				args: ['--no-sandbox', '--disable-setuid-sandbox'],
+				headless: true
+			}
 		}
 	})
 		.then(() => output)
