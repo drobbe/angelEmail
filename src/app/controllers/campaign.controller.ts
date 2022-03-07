@@ -126,6 +126,12 @@ export const playCampaign = async (req: Request, res: Response) => {
         fin = 25,
         limite = 25;
 
+    if (cantRecords <= limite) {
+        console.log('Menos del limite.');
+        serversId = [serversId[0]];
+        console.log('Servidores: ', serversId);
+    }
+
     // serversId.forEach(async (server) => {
     for (let server of serversId) {
         console.log('Servidor: ', server, 'Inicio: ', inicio, 'Fin: ', fin);
@@ -135,9 +141,10 @@ export const playCampaign = async (req: Request, res: Response) => {
             limite
         );
         // console.log('Recipients: ', recipients);
+
         inicio += fin;
         fin += limite;
-
+        // if (cantRecords > fin) {
         let peticion = {
             id: objCampaign.id,
             name: objCampaign.name,
@@ -148,6 +155,10 @@ export const playCampaign = async (req: Request, res: Response) => {
         };
 
         sendEmails(peticion);
+        // } else {
+        //	console.log('Mas de los obtenidos');
+        //	return false;
+        // }
     } // );
 
     return res.status(200).json({
