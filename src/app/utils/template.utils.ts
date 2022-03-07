@@ -11,6 +11,7 @@ nunjucks.configure({
 export const makeHtml = function (templateData, datos) {
 	try {
 		let objVariables = {};
+		console.log('Variables sucias: ', templateData.customVariables);
 		let variables = JSON.parse(templateData.customVariables.replace(/\|/g, ''));
 		console.log('Datos para plantilla:', datos);
 		console.log('Variables: ', variables);
