@@ -20,7 +20,8 @@ export const makeHtml = function (templateData, datos) {
 			objVariables[v] = datos.hasOwnProperty(v) ? datos[v] : '';
 		}
 		console.log('Variables llenas: ', objVariables);
-		return nunjucks.renderString(templateData.htmlTemplate, objVariables);
+		const salida = nunjucks.renderString(templateData.htmlTemplate, objVariables);
+		return salida;
 	} catch (error) {
 		console.log(error);
 		console.log('Error al generar la template: ', error.message);
