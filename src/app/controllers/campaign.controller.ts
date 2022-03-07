@@ -101,7 +101,7 @@ export const playCampaign = async (req: Request, res: Response) => {
     }
 
     console.log('Servidores activos: ', servers.length);
-    console.log('Cant', cantRecords);
+    console.log('Cant. Registros: ', cantRecords);
 
     if (cantRecords <= 0) {
         return res.status(200).json({
@@ -119,7 +119,7 @@ export const playCampaign = async (req: Request, res: Response) => {
         return 0.5 - Math.random();
     });
 
-    console.log('Servers ID:', serversId);
+    console.log('Servers IDs:', serversId);
     const jobs = Math.ceil(cantRecords / 20);
     console.log('Jobs:', jobs);
     let inicio = 0,
