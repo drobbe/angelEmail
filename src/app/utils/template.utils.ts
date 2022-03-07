@@ -18,7 +18,7 @@ export const makeHtml = function (templateData, datos) {
 		for (let v of variables) {
 			console.log(v, datos[v]);
 			// eslint-disable-next-line no-prototype-builtins
-			objVariables[v] = datos.hasOwnProperty(v) ? datos[v] : '';
+			objVariables[v] = datos.hasOwnProperty(v) ? datos[v].toString().trim() : '';
 		}
 		console.log('Variables llenas: ', objVariables);
 		const salida = nunjucks.renderString(templateData.htmlTemplate, objVariables);
