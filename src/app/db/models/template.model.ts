@@ -88,7 +88,11 @@ export const getTemplate = async (id) => {
                 id: true,
                 name: true,
                 htmlTemplate: true,
-                customVariables: true
+                htmlJson: true,
+                customVariables: true,
+                urlPreview: true,
+                base64Image: true,
+                client: true
             }
         });
         return data;

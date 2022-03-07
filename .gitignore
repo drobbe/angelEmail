@@ -4,5 +4,6 @@ pm2-prod.json
 pm2-alpha.json
 uploads/*
 package-lock.json
-package-lock.json
 .env
+dist/*
+src/app/public/assets/images/*

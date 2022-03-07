@@ -29,7 +29,7 @@ model Campaign {
   idTemplate Int
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
-  role       StatusCampaign @default(PAUSADO)
+  status     StatusCampaign @default(PAUSADO)
   template   Template       @relation(fields: [idTemplate], references: [id])
   Jobs       Jobs[]
   dataEmail  dataEmail[]

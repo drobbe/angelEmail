@@ -35,7 +35,7 @@ const getCampaignsClient = (idClient) => __awaiter(void 0, void 0, void 0, funct
             where: {
                 client: idClient,
                 NOT: {
-                    role: 'ELIMINADO'
+                    status: 'ELIMINADO'
                 }
             }
         });

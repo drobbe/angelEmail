@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import {
     deteleTemplate,
     editTemplateDB,
+    getTemplate,
     getTemplatesDB,
     insertTemplateDB
 } from '../db/models/template.model';
@@ -72,6 +73,36 @@ export const deleteTemplate = async (req: Request, res: Response) => {
             message: 'Todo OK',
             status: true,
             data: deleted
+        });
+    } catch (error) {
+        return res.status(406).json({
+            message: 'Error ni idea xq',
+            status: false,
+            error: error
+        });
+    }
+};
+
+export const duplicateTemplate = async (req: Request, res: Response) => {
+    try {
+        const idTemplate = req.body.id;
+        const template = await getTemplate(idTemplate);
+        const date = new Date();
+        const formateDate = date.toLocaleTimeString();
+        const newDuplicateTemplate = await insertTemplateDB({
+            client: template.client,
+            name: `${template.name}-Copia-${formateDate}`,
+            htmlJson: template.htmlJson,
+            htmlTemplate: template.htmlTemplate,
+            urlPreview: template.urlPreview,
+            base64Image: template.base64Image,
+            customVariables: template.customVariables
+        });
+
+        return res.status(200).json({
+            message: 'Todo OK',
+            status: true,
+            data: newDuplicateTemplate
         });
     } catch (error) {
         return res.status(406).json({

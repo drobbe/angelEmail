@@ -53,9 +53,9 @@ const listCampaign = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     const idClient = Number(req.headers.idclient);
     const campaigns = yield (0, campaign_model_1.getCampaignsClient)(idClient);
     (0, error_utils_1.log)('info', {
-        msg: 'Se ha creado correctamente la campaña ' + req.body.name
+        msg: 'Listado con éxito'
     });
-    return res.status(201).json({
+    return res.status(200).json({
         message: 'Todo OK',
         status: true,
         data: campaigns
@@ -74,7 +74,7 @@ const playCampaign = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
     const servers = yield (0, mailconfig_model_1.getServersActive)();
     const cantRecords = yield (0, campaign_model_1.getBaseActive)(objCampaign.id);
-    if (objCampaign.role === 'PROCESANDO') {
+    if (objCampaign.status === 'PROCESANDO') {
         return res.status(400).json({
             success: false,
             msg: 'La campaña ya está en play',

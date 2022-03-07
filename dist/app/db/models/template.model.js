@@ -90,7 +90,11 @@ const getTemplate = (id) => __awaiter(void 0, void 0, void 0, function* () {
                 id: true,
                 name: true,
                 htmlTemplate: true,
-                customVariables: true
+                htmlJson: true,
+                customVariables: true,
+                urlPreview: true,
+                base64Image: true,
+                client: true
             }
         });
         return data;

@@ -33,7 +33,7 @@ export const getCampaignsClient = async (idClient: number) => {
             where: {
                 client: idClient,
                 NOT: {
-                    role: 'ELIMINADO'
+                    status: 'ELIMINADO'
                 }
             }
         });

@@ -92,7 +92,7 @@ export const playCampaign = async (req: Request, res: Response) => {
     const servers = await getServersActive();
     const cantRecords = await getBaseActive(objCampaign.id);
 
-    if (objCampaign.role === 'PROCESANDO') {
+    if (objCampaign.status === 'PROCESANDO') {
         return res.status(400).json({
             success: false,
             msg: 'La campaña ya está en play',

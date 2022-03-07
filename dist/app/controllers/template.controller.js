@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTemplates = exports.editTemplate = exports.deleteTemplate = exports.createTemplate = exports.getVariablesInHtml = void 0;
+exports.getTemplates = exports.editTemplate = exports.duplicateTemplate = exports.deleteTemplate = exports.createTemplate = exports.getVariablesInHtml = void 0;
 const template_model_1 = require("../db/models/template.model");
 const error_utils_1 = require("../utils/error.utils");
 const file_controller_1 = require("./file.controller");
@@ -68,6 +68,36 @@ const deleteTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.deleteTemplate = deleteTemplate;
+const duplicateTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const idTemplate = req.body.id;
+        const template = yield (0, template_model_1.getTemplate)(idTemplate);
+        const date = new Date();
+        const formateDate = date.toLocaleTimeString();
+        const newDuplicateTemplate = yield (0, template_model_1.insertTemplateDB)({
+            client: template.client,
+            name: `${template.name}-Copia-${formateDate}`,
+            htmlJson: template.htmlJson,
+            htmlTemplate: template.htmlTemplate,
+            urlPreview: template.urlPreview,
+            base64Image: template.base64Image,
+            customVariables: template.customVariables
+        });
+        return res.status(200).json({
+            message: 'Todo OK',
+            status: true,
+            data: newDuplicateTemplate
+        });
+    }
+    catch (error) {
+        return res.status(406).json({
+            message: 'Error ni idea xq',
+            status: false,
+            error: error
+        });
+    }
+});
+exports.duplicateTemplate = duplicateTemplate;
 const editTemplate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const htmlDecode = HTMLDecoderEncoder.decode(req.body.html);
