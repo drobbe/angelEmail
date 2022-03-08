@@ -2,6 +2,7 @@
 import { log } from '../utils/error.utils';
 import { loadExcelFile } from '../utils/main.utils';
 import nodeHtmlToImage from 'node-html-to-image';
+import { quitarAcentos } from '../utils/string.utils';
 const fs = require('fs');
 /**
  * SAMPLE FUNCTION - CAN BE REMOVED
@@ -28,7 +29,11 @@ export const previewFile = async function (req: any, res) {
         }
     });
 
-    let array = Object.entries(row).map(([k]) => k);
+    let array = Object.entries(row).map(([k]) =>
+        quitarAcentos(k).toUpperCase()
+    );
+
+    console.log(array);
 
     const requiresColumns = ['NOMBRE', 'IDENTIFICACION', 'EMAIL'];
 

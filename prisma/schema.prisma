@@ -94,9 +94,10 @@ model servidores_emails {
 }
 
 enum StatusCampaign {
+  CARGADA
   PAUSADO
   PROCESANDO
-  TERMINADO
+  COMPLETADO
   ELIMINADO
   ERROR
 }

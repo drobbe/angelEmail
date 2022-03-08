@@ -44,6 +44,30 @@ export const getCampaignsClient = async (idClient: number) => {
     }
 };
 
+export const getCampaignsClientDateFilter = async (
+    idClient: number,
+    dateFilter: any
+) => {
+    try {
+        const data = await prisma.campaign.findMany({
+            where: {
+                client: idClient,
+                NOT: {
+                    status: 'ELIMINADO'
+                },
+                AND: [
+                    { createdAt: { lte: new Date(dateFilter.end) } },
+                    { createdAt: { gte: new Date(dateFilter.start) } }
+                ]
+            }
+        });
+
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 export const insertDataEmail = async (dataEmail: any) => {
     try {
         const data = await prisma.dataEmail.createMany({

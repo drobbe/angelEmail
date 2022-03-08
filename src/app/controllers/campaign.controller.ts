@@ -5,7 +5,8 @@ import {
     insertDataEmail,
     getCampaign,
     getCampaignBase,
-    getBaseActive
+    getBaseActive,
+    getCampaignsClientDateFilter
 } from '../db/models/campaign.model';
 import { getServersActive } from '../db/models/mailconfig.model';
 import { sendEmails } from '../utils/email.utils';
@@ -61,9 +62,17 @@ export const createCampaign = async (req: any, res: Response) => {
 };
 
 export const listCampaign = async (req: Request, res: Response) => {
-    console.log(req.headers.idclient);
     const idClient = Number(req.headers.idclient);
-    const campaigns = await getCampaignsClient(idClient);
+    let campaigns = null;
+    if (
+        req.query && // 👈 null and undefined check
+        Object.keys(req.query).length === 0 &&
+        Object.getPrototypeOf(req.query) === Object.prototype
+    ) {
+        campaigns = await getCampaignsClient(idClient);
+    } else {
+        campaigns = await getCampaignsClientDateFilter(idClient, req.query);
+    }
 
     log('info', {
         msg: 'Listado con éxito'

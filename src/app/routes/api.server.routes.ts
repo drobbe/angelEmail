@@ -16,8 +16,6 @@ module.exports = function (app) {
 
     app.route('/test').get(helloWorld);
 
-    app.route('/preview').get(previewFile);
-
     app.route('/preview').post(previewFile);
 
     app.route('/metrics').get(getMetrics);
