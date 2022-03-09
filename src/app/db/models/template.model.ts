@@ -57,7 +57,11 @@ export const editTemplateDB = async (id, template: Template) => {
 
 export const getTemplatesDB = async () => {
     try {
-        const data = await prisma.template.findMany();
+        const data = await prisma.template.findMany({
+            where: {
+                deleted: false
+            }
+        });
         return data;
     } catch (error) {
         console.error(error);
@@ -65,11 +69,69 @@ export const getTemplatesDB = async () => {
     }
 };
 
-export const deteleTemplate = async (id) => {
+export const getTemplatesEnabledDB = async () => {
+    try {
+        const data = await prisma.template.findMany({
+            where: {
+                deleted: false,
+                enable: true
+            }
+        });
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw new Error(error);
+    }
+};
+
+export const deleteTemplateDB = async (id) => {
     try {
         const idTemplate = Number(id);
-        const data = await prisma.template.delete({
-            where: { id: idTemplate }
+        const data = await prisma.template.update({
+            where: { id: idTemplate },
+            data: {
+                deleted: true
+            }
+        });
+        return data;
+
+        // ---VIEJO DELETE --
+        // return data;
+        // const idTemplate = Number(id);
+        // const data = await prisma.template.delete({
+        //     where: { id: idTemplate }
+        // });
+        // return data;
+    } catch (error) {
+        console.error(error);
+        throw new Error(error);
+    }
+};
+
+export const enableTemplateDB = async (id) => {
+    try {
+        const idTemplate = Number(id);
+        const data = await prisma.template.update({
+            where: { id: idTemplate },
+            data: {
+                enable: true
+            }
+        });
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw new Error(error);
+    }
+};
+
+export const disableTemplateDB = async (id) => {
+    try {
+        const idTemplate = Number(id);
+        const data = await prisma.template.update({
+            where: { id: idTemplate },
+            data: {
+                enable: false
+            }
         });
         return data;
     } catch (error) {
@@ -92,7 +154,8 @@ export const getTemplate = async (id) => {
                 customVariables: true,
                 urlPreview: true,
                 base64Image: true,
-                client: true
+                client: true,
+                enable: true
             }
         });
         return data;

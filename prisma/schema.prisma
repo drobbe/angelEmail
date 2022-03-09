@@ -8,15 +8,17 @@ datasource db {
 }
 
 model Template {
-  id              Int        @id @default(autoincrement())
-  client          Int
-  name            String
-  htmlTemplate    String     @db.MediumText
-  htmlJson        String     @db.MediumText
-  urlPreview      String
-  base64Image     String     @db.MediumText
-  customVariables String?    @db.TinyText
-  Campaign        Campaign[]
+  id              	Int        	@id @default(autoincrement())
+  client          	Int
+  name            	String
+  htmlTemplate    	String     	@db.MediumText
+  htmlJson        	String     	@db.MediumText
+  urlPreview      	String
+  base64Image     	String    	@db.MediumText
+  customVariables 	String?    	@db.TinyText
+  enable			Boolean		@default(true)
+  deleted			Boolean		@default(false)
+  Campaign        	Campaign[]
 }
 
 model Campaign {
@@ -29,7 +31,7 @@ model Campaign {
   idTemplate Int
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
-  status     StatusCampaign @default(PAUSADO)
+  status     StatusCampaign @default(CARGADA)
   template   Template       @relation(fields: [idTemplate], references: [id])
   Jobs       Jobs[]
   dataEmail  dataEmail[]

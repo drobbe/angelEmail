@@ -1,9 +1,12 @@
 import { Request, Response } from 'express';
 import {
-    deteleTemplate,
+    deleteTemplateDB,
+    disableTemplateDB,
     editTemplateDB,
+    enableTemplateDB,
     getTemplate,
     getTemplatesDB,
+    getTemplatesEnabledDB,
     insertTemplateDB
 } from '../db/models/template.model';
 import { log } from '../utils/error.utils';
@@ -68,7 +71,41 @@ export const createTemplate = async (req: Request, res: Response) => {
 
 export const deleteTemplate = async (req: Request, res: Response) => {
     try {
-        const deleted = await deteleTemplate(req.params.id);
+        const deleted = await deleteTemplateDB(req.params.id);
+        return res.status(200).json({
+            message: 'Todo OK',
+            status: true,
+            data: deleted
+        });
+    } catch (error) {
+        return res.status(406).json({
+            message: 'Error ni idea xq',
+            status: false,
+            error: error
+        });
+    }
+};
+
+export const enableTemplate = async (req: Request, res: Response) => {
+    try {
+        const deleted = await enableTemplateDB(req.params.id);
+        return res.status(200).json({
+            message: 'Todo OK',
+            status: true,
+            data: deleted
+        });
+    } catch (error) {
+        return res.status(406).json({
+            message: 'Error ni idea xq',
+            status: false,
+            error: error
+        });
+    }
+};
+
+export const disableTemplate = async (req: Request, res: Response) => {
+    try {
+        const deleted = await disableTemplateDB(req.params.id);
         return res.status(200).json({
             message: 'Todo OK',
             status: true,
@@ -167,6 +204,24 @@ export const editTemplate = async (req: Request, res: Response) => {
 export const getTemplates = async (req: Request, res: Response) => {
     try {
         const templates = await getTemplatesDB();
+
+        return res.status(200).json({
+            message: 'Todo OK',
+            status: true,
+            data: templates
+        });
+    } catch (error) {
+        return res.status(406).json({
+            message: 'Error ni idea xq',
+            status: false,
+            error: error
+        });
+    }
+};
+
+export const getTemplatesEnabled = async (req: Request, res: Response) => {
+    try {
+        const templates = await getTemplatesEnabledDB();
 
         return res.status(200).json({
             message: 'Todo OK',
