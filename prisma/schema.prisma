@@ -85,6 +85,7 @@ model dataEmail {
 }
 
 enum StatusCampaign {
+    CARGADA
     PAUSADO
     PROCESANDO
     TERMINADO
