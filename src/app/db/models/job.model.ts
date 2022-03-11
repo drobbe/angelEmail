@@ -10,7 +10,7 @@ export const setJobStatus = async (idJob, status) => {
                 status: Number(status)
             }
         });
-        console.log('SetJobStatus: ', data);
+        // console.log('SetJobStatus: ', data);
         return data;
     } catch (error) {
         console.log(error);

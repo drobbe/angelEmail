@@ -175,9 +175,13 @@ const checkJobs = async () => {
                 // console.log('Libre: ', servidorLibre);
                 let job = await getOneJobByServer(servidorLibre.id);
                 // console.log('JOB: ', job);
-                console.log('Servidor (%s), (%s)', servidorLibre.name, job);
                 if (job !== null) {
-                    console.log('Crear tarea: ', job);
+                    console.log(
+                        'Servidor (%s), ID (%s), Campaña_(%s)',
+                        servidorLibre.name,
+                        job.id,
+                        job.idCampaign
+                    );
                     await createJob(job);
                 } else {
                     console.log('No hay trabajos disponibles.');

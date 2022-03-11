@@ -162,6 +162,11 @@ export const sendEmails = async (data) => {
                     ) {
                         console.log('Seteando replyTo (%s)', data.replyTo);
                         mail['replyTo'] = data.replyTo;
+                        /*
+                        console.log('Enmascarar email');
+                        mail['from'] =
+                            '"' + data.name + '" <' + data.replyTo + '>';
+							*/
                     }
 
                     let sendInfo = await transporter[1].sendMail(mail);
@@ -173,10 +178,14 @@ export const sendEmails = async (data) => {
                         sendInfo.messageId
                     );
 
+                    const fechaEnvio = new Date().toISOString();
+
                     setBaseStatus(recipient.id, {
-                        isSent: 1,
+                        isSent: true,
                         sentId: sendInfo.messageId,
-                        error: 0,
+                        sentDate: fechaEnvio,
+                        isValid: true,
+                        error: false,
                         errorMessage: null,
                         server: data.idServer
                     });
@@ -190,9 +199,11 @@ export const sendEmails = async (data) => {
                         'Dirección de e-mail no válida'
                     );
                     setBaseStatus(recipient.id, {
-                        isSent: 0,
+                        isSent: false,
                         sentId: null,
-                        error: 1,
+                        sentDate: null,
+                        error: true,
+                        isValid: false,
                         errorMessage:
                             'Dirección de e-mail (' +
                             recipient.email +
@@ -214,9 +225,11 @@ export const sendEmails = async (data) => {
                 );
                 // noEnviados += 1;
                 setBaseStatus(recipient.id, {
-                    isSent: 0,
+                    isSent: false,
                     sentId: null,
-                    error: 1,
+                    sentDate: null,
+                    isValid: true,
+                    error: true,
                     errorMessage: error.message,
                     server: data.idServer
                 });
@@ -245,12 +258,12 @@ const validaProcesados = async (idJob, procesados) => {
             '========================================================='
         );
         const item = colas.find((t) => t.id === idJob);
-        console.log('Item: ', item);
+        // console.log('Item: ', item);
         if (item !== undefined) {
             const icola = colas.indexOf((r) => r.id === idJob);
-            console.log('I Cola: ', icola);
+            // console.log('I Cola: ', icola);
             console.log(
-                '=======> Van (%s) de (%s) server (%s).',
+                '=========> Procesados (%s) de (%s) by server (%s) <=========',
                 procesados,
                 item.cantidad,
                 item.idServer
@@ -259,10 +272,9 @@ const validaProcesados = async (idJob, procesados) => {
             console.log('25 % de (%s) es (%s)', item.cantidad, porcentaje);
             if (item.cantidad === procesados) {
                 console.log(
-                    '(%s) Completada (%s) / (%s) *************',
+                    '(%s) Completada (%s) *************',
                     idJob,
-                    procesados,
-                    item.cantidad
+                    procesados
                 );
                 await setJobStatus(idJob, 2);
                 await setServerBusy(item.idServer, 0);
@@ -276,14 +288,14 @@ const validaProcesados = async (idJob, procesados) => {
             } else if (errores >= porcentaje) {
                 if (icola !== -1) delete colas[icola];
                 await setServerBusy(item.idServer, 0);
-                console.log('Demasiados errores.');
+                // console.log('Demasiados errores.');
                 await setStateCampaign(
                     item.idCampaign,
                     'PAUSADO',
                     'Pausado por demasiados errores.'
                 );
             }
-            console.log('<=====================');
+            console.log('<============================');
         }
     } catch (errors) {
         console.log(errors);

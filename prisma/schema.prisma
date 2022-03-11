@@ -69,18 +69,20 @@ model Servers {
 }
 
 model dataEmail {
-    id              Int      @id @default(autoincrement())
-    indentity       String   @db.VarChar(255)
-    fullName        String   @db.VarChar(255)
-    customVariables String?  @db.MediumText
+    id              Int       @id @default(autoincrement())
+    indentity       String    @db.VarChar(255)
+    fullName        String    @db.VarChar(255)
+    customVariables String?   @db.MediumText
     idCampaign      Int
     email           String
-    isSent          Boolean? @default(false)
-    sentId          String?  @db.VarChar(255)
+    isValid         Boolean?  @default(true)
+    isSent          Boolean?  @default(false)
+    sentId          String?   @db.VarChar(255)
+    sentDate        DateTime?
     serverSent      Int?
-    error           Boolean? @default(false)
-    errorMessage    String?  @db.Text
-    Campaign        Campaign @relation(fields: [idCampaign], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "DataEmail_idCampaign_fkey")
+    error           Boolean?  @default(false)
+    errorMessage    String?   @db.Text
+    Campaign        Campaign  @relation(fields: [idCampaign], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "DataEmail_idCampaign_fkey")
 
     @@index([idCampaign], map: "DataEmail_idCampaign_fkey")
 }

@@ -7,4 +7,5 @@ module.exports = function (app) {
     app.route('/campaigns').get(controller.listCampaign);
     app.route('/campaign/play/:id').get(controller.playCampaign);
     app.route('/campaign/pause/:id').get(controller.pauseCampaign);
+    app.route('/campaign/export/:id').get(controller.exportCampaign);
 };

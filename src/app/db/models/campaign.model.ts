@@ -108,7 +108,8 @@ export const getCampaignBase = async (campaign, start, end) => {
             where: {
                 idCampaign: campaign,
                 isSent: false,
-                error: false
+                error: false,
+                isValid: true
             },
             take: limit,
             skip: offset,
@@ -133,8 +134,11 @@ export const setBaseStatus = async (record, dataEmail) => {
             data: {
                 isSent: Boolean(dataEmail.isSent),
                 sentId: dataEmail.sentId,
+                sentDate: dataEmail.sentDate,
+                isValid: dataEmail.isValid,
                 error: Boolean(dataEmail.error),
-                errorMessage: dataEmail.errorMessage
+                errorMessage: dataEmail.errorMessage,
+                serverSent: dataEmail.server
             }
         });
 
@@ -151,7 +155,8 @@ export const getBaseActive = async (campaign: any) => {
                 // eslint-disable-next-line radix
                 idCampaign: campaign,
                 isSent: false,
-                error: false
+                error: false,
+                isValid: true
             }
         });
         return data;
@@ -206,7 +211,8 @@ export const getCountBasePending = async (idCampaign) => {
             where: {
                 // eslint-disable-next-line radix
                 idCampaign: Number(idCampaign),
-                isSent: false
+                isSent: false,
+                isValid: true
             }
         });
         return data;
@@ -218,7 +224,7 @@ export const getCountBasePending = async (idCampaign) => {
 export const getRangeEmails = async (data) => {
     try {
         let result =
-            await prisma.$queryRaw`SELECT MIN(r.id) AS inicio, MAX(r.id) AS hasta FROM (SELECT id FROM dataEmail WHERE idCampaign = ${data.idCampaign} AND isSent = 0 GROUP BY id LIMIT ${data.inicio}, ${data.limitByServer}) AS r;`;
+            await prisma.$queryRaw`SELECT MIN(r.id) AS inicio, MAX(r.id) AS hasta FROM (SELECT id FROM dataEmail WHERE idCampaign = ${data.idCampaign} AND isSent = 0 AND isValid = 1 GROUP BY id LIMIT ${data.inicio}, ${data.limitByServer}) AS r;`;
         if ((<any>result).length) result = result[0];
         return result;
     } catch (error) {
@@ -242,5 +248,18 @@ export const checkCampaignFinalized = async (idCampaign) => {
     } catch (errors) {
         console.log(errors);
         console.log('campaign.models.checkCampaignFinalized:', errors.message);
+    }
+};
+
+export const getDataCampaign = async (idCampaign) => {
+    try {
+        const data = await prisma.dataEmail.findMany({
+            where: {
+                idCampaign: Number(idCampaign)
+            }
+        });
+        return data;
+    } catch (error) {
+        console.log(error);
     }
 };

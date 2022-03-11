@@ -9,7 +9,8 @@ import {
     getCampaignsClientDateFilter,
     setStateCampaign,
     getCountBasePending,
-    getRangeEmails
+    getRangeEmails,
+    getDataCampaign
 } from '../db/models/campaign.model';
 import { getServersActive } from '../db/models/server.model';
 import { cleanJobsByCampaign, createJobs } from '../db/models/job.model';
@@ -17,7 +18,10 @@ import { sendEmails } from '../utils/email.utils';
 
 import { log } from '../utils/error.utils';
 import { getDataXlsx } from './file.controller';
+import { getTemplate } from '../db/models/template.model';
+const moment = require('moment-timezone');
 const jobsUtil = require('../utils/job.util');
+const Excel = require('exceljs');
 
 const limitByServer = parseInt(process.env.LIMIT_BY_SERVER, 10) || 100;
 
@@ -442,6 +446,174 @@ export const pauseCampaign = async (req: Request, res: Response) => {
     } catch (errors) {
         console.log(errors);
         console.log('contoller.campaigns.pauseCampaign:', errors.message);
+        return res.status(500).json({
+            success: false,
+            msg: errors.message
+        });
+    }
+};
+
+export const exportCampaign = async (req: Request, res: Response) => {
+    try {
+        let idCampaign = req.params.id;
+        if (
+            idCampaign === undefined ||
+            idCampaign === null ||
+            idCampaign === ''
+        ) {
+            console.log('Falta el id de la campaña');
+            return res.status(200).json({
+                success: false,
+                items: [],
+                msg: 'Faltan lso datos requeridos.'
+            });
+        }
+
+        let objCampaign = await getCampaign(idCampaign);
+        if (objCampaign === null) {
+            console.log('Campaña no válida o no existe');
+            return res.status(200).json({
+                success: false,
+                items: [],
+                msg: 'Campaña no válida o no existe.'
+            });
+        }
+
+        if (
+            objCampaign.status === 'PROCESANDO' ||
+            objCampaign.status === 'CARGADA'
+        ) {
+            console.log('Campaña no válida o no existe');
+            return res.status(200).json({
+                success: false,
+                items: [],
+                msg: 'La campaña debe estar en pausa o finalizada para poder extraer información.'
+            });
+        }
+
+        const template = await getTemplate(objCampaign.idTemplate);
+        const datosCampania = await getDataCampaign(idCampaign);
+
+        let templateVars = JSON.parse(
+            template.customVariables.replace(/\|\|/g, '')
+        );
+        console.log('Exportar (%s) registros.', datosCampania.length);
+
+        if (!datosCampania.length) {
+            console.log('Sin datos para exportar');
+            return res.status(200).json({
+                success: false,
+                items: [],
+                msg: 'Sin información a procesar.'
+            });
+        }
+
+        console.log(templateVars.map((o) => o.replace(/\s+/g, '_')));
+
+        let workbook = new Excel.Workbook();
+        let worksheet = workbook.addWorksheet('Reporte de ejecución');
+        let columnas = [
+            {
+                header: 'campaña',
+                key: 'campaign',
+                width: 20
+            }
+        ];
+
+        // eslint-disable-next-line guard-for-in
+        for (let p in templateVars) {
+            let variable = templateVars[p];
+            columnas.push({
+                header: variable.toString().toLowerCase(),
+                key: variable.toString(),
+                width: 25
+            });
+
+            if (variable.toLowerCase() === 'email') {
+                columnas.push({
+                    header: 'estado envío',
+                    key: 'sent_state',
+                    width: 20
+                });
+                columnas.push({
+                    header: 'fecha/hora',
+                    key: 'sent_date',
+                    width: 15
+                });
+            }
+        }
+
+        worksheet.columns = columnas;
+
+        // eslint-disable-next-line guard-for-in
+        for (let d in datosCampania) {
+            let registro = datosCampania[d];
+            let datos = JSON.parse(registro.customVariables);
+            console.log('Variables registro: ', datos);
+            let item = {
+                campaign: objCampaign.name
+            };
+
+            // eslint-disable-next-line guard-for-in
+            for (let v in templateVars) {
+                let campo = templateVars[v];
+                if (datos[campo] !== undefined) {
+                    item[campo] = datos[campo].toString();
+                } else {
+                    item[campo] = '';
+                }
+
+                if (campo.toLowerCase() === 'email') {
+                    let resultado = 'NO ENVIADO';
+                    let fechaEnvio = '';
+                    // eslint-disable-next-line max-depth
+                    if (registro.isSent === true) {
+                        resultado = 'ENVIADO';
+                        fechaEnvio = registro.sentDate.toISOString();
+                        fechaEnvio = moment(fechaEnvio).format(
+                            'DD-MM-YYYY HH:mm:SS'
+                        );
+                    }
+
+                    // eslint-disable-next-line max-depth
+                    if (registro.isSent !== true && registro.error === true) {
+                        resultado =
+                            'NO ENVIADO - Problemas con el envío, con nuestros servers.';
+                    }
+
+                    // eslint-disable-next-line max-depth
+                    if (registro.isValid === false) {
+                        resultado = 'CORREO INVÁLIDO';
+                    }
+
+                    item['sent_state'] = resultado;
+                    item['sent_date'] = fechaEnvio;
+                }
+            }
+
+            console.log('Registro: ', item);
+
+            worksheet.addRow(item);
+        }
+
+        let fileName =
+            objCampaign.name.toLowerCase().replace(/\s+/g, '_') +
+            '_reporte.xlsx';
+
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename=' + fileName
+        );
+
+        await workbook.xlsx.write(res);
+        res.end();
+    } catch (errors) {
+        console.log(errors);
+        console.log('contoller.campaigns.exportCampaign:', errors.message);
         return res.status(500).json({
             success: false,
             msg: errors.message
