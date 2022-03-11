@@ -34,7 +34,8 @@ export const createCampaign = async (req: any, res: Response) => {
         name: req.body.name,
         subject: req.body.subject,
         idTemplate: req.body.idTemplate,
-        schedule: req.body.schedule
+        schedule: req.body.schedule,
+        emailReponse: req.body.emailReponse
     });
 
     const path = './' + req.file.path.replace('\\', '/');
