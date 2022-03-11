@@ -1,5 +1,7 @@
 import prisma from '../connection';
 
+const { cleanJobsByCampaign } = require('./job.model');
+
 export type Campaign = {
     id?: number;
     client?: number;
@@ -82,10 +84,11 @@ export const insertDataEmail = async (dataEmail: any) => {
 
 export const getCampaign = async (campaign: any) => {
     try {
+        // console.log('GetCampaign: ', campaign);
         const data = await prisma.campaign.findUnique({
             where: {
                 // eslint-disable-next-line radix
-                id: campaign
+                id: Number(campaign)
             }
         });
         return data;
@@ -101,8 +104,8 @@ export const getCampaignBase = async (campaign, start, end) => {
         const data = await prisma.dataEmail.findMany({
             where: {
                 idCampaign: campaign,
-                isSent: 0,
-                error: 0
+                isSent: false,
+                error: false
             },
             take: limit,
             skip: offset,
@@ -125,9 +128,9 @@ export const setBaseStatus = async (record, dataEmail) => {
                 id: idRecord
             },
             data: {
-                isSent: Number(dataEmail.isSent),
+                isSent: Boolean(dataEmail.isSent),
                 sentId: dataEmail.sentId,
-                error: Number(dataEmail.error),
+                error: Boolean(dataEmail.error),
                 errorMessage: dataEmail.errorMessage
             }
         });
@@ -144,12 +147,97 @@ export const getBaseActive = async (campaign: any) => {
             where: {
                 // eslint-disable-next-line radix
                 idCampaign: campaign,
-                isSent: 0,
-                error: 0
+                isSent: false,
+                error: false
             }
         });
         return data;
     } catch (error) {
         console.log(error);
+    }
+};
+
+export const getCampaignsActive = async () => {
+    try {
+        const data = await prisma.campaign.findMany({
+            where: {
+                status: 'PROCESANDO'
+            }
+        });
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const setStateCampaign = async (idCampaign, state, message) => {
+    try {
+        const data = await prisma.campaign.update({
+            where: {
+                id: Number(idCampaign)
+            },
+            data: {
+                status: state,
+                statusMessage: message
+            }
+        });
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const getCampaignRecipients = async (datos) => {
+    try {
+        const data =
+            await prisma.$queryRaw`SELECT id, fullName, email, customVariables FROM dataEmail WHERE idCampaign = ${datos.campaign} AND isSent = 0 AND id BETWEEN ${datos.desde} AND ${datos.hasta}`;
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const getCountBasePending = async (idCampaign) => {
+    try {
+        const data = await prisma.dataEmail.count({
+            where: {
+                // eslint-disable-next-line radix
+                idCampaign: Number(idCampaign),
+                isSent: false
+            }
+        });
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const getRangeEmails = async (data) => {
+    try {
+        let result =
+            await prisma.$queryRaw`SELECT MIN(r.id) AS inicio, MAX(r.id) AS hasta FROM (SELECT id FROM dataEmail WHERE idCampaign = ${data.idCampaign} AND isSent = 0 GROUP BY id LIMIT ${data.inicio}, ${data.limitByServer}) AS r;`;
+        if ((<any>result).length) result = result[0];
+        return result;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const checkCampaignFinalized = async (idCampaign) => {
+    try {
+        const pendientes = await getCountBasePending(idCampaign);
+        // console.log('Comprobando pendientes (%s) result (%s)', idCampaign, pendientes);
+        if (pendientes <= 0) {
+            // console.log('Finaisando campaña.');
+            await setStateCampaign(
+                idCampaign,
+                'TERMINADO',
+                'Terminado por no tener destinatarios pendientes desde DB.'
+            );
+            await cleanJobsByCampaign(idCampaign);
+        }
+    } catch (errors) {
+        console.log(errors);
+        console.log('campaign.models.checkCampaignFinalized:', errors.message);
     }
 };

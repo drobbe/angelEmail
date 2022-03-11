@@ -15,7 +15,14 @@ process.on('uncaughtException', function (err) {
 });
 
 // Start the app by listening on <port>
-app.get('server').listen(config.port);
+app.get('server').listen(config.port, () => {
+    let utils = require('./app/utils/job.util');
+    setTimeout(() => {
+        utils.cleanServers();
+        utils.startJobs();
+        console.log('====> Iniciado tareas <====');
+    }, 2000);
+});
 // console.log(prisma);
 // Expose app
 exports = module.exports = app;

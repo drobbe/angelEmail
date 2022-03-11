@@ -13,12 +13,12 @@ export const getServer = async (server) => {
         console.log(error);
     }
 };
-
+/*
 export const getServersActive = async () => {
     try {
         const data = await prisma.servers.findMany({
             where: {
-                active: 1
+                active: true
             }
         });
 
@@ -27,3 +27,4 @@ export const getServersActive = async () => {
         console.log(error);
     }
 };
+*/
