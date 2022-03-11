@@ -89,7 +89,7 @@ enum StatusCampaign {
     CARGADA
     PAUSADO
     PROCESANDO
-    TERMINADO
+    COMPLETADO
     ELIMINADO
     ERROR
 }

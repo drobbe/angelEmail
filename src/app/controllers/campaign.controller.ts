@@ -220,7 +220,10 @@ export const playCampaign = async (req: Request, res: Response) => {
                 msg: 'Error, la campaña ya se está ejecuntando.'
             });
         }
-        if (objCampaign.status !== 'PAUSADO') {
+        if (
+            objCampaign.status !== 'PAUSADO' &&
+            objCampaign.status !== 'CARGADA'
+        ) {
             console.log('Campaña en etatus no valido (%s)', objCampaign.status);
             return res.status(200).json({
                 success: false,
