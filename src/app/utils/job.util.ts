@@ -78,6 +78,7 @@ const createJob = async (job) => {
                 template: campania.idTemplate,
                 subject: campania.subject,
                 recipients: recipients,
+                replyTo: campania.emailReponse,
                 idServer: job.idServer,
                 idJob: job.id
             };

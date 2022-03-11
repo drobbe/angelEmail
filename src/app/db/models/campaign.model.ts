@@ -234,8 +234,8 @@ export const checkCampaignFinalized = async (idCampaign) => {
             // console.log('Finaisando campaña.');
             await setStateCampaign(
                 idCampaign,
-                'TERMINADO',
-                'Terminado por no tener destinatarios pendientes desde DB.'
+                'COMPLETADO',
+                'COMPLETADO por no tener destinatarios pendientes desde DB.'
             );
             await cleanJobsByCampaign(idCampaign);
         }
