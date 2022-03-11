@@ -517,81 +517,105 @@ export const exportCampaign = async (req: Request, res: Response) => {
                 header: 'campaña',
                 key: 'campaign',
                 width: 20
+            },
+            {
+                header: 'identificacion',
+                key: 'identity',
+                width: 20
+            },
+            {
+                header: 'nombre destinatario',
+                key: 'fullName',
+                width: 20
+            },
+            {
+                header: 'email',
+                key: 'email',
+                width: 20
+            },
+            {
+                header: 'estado envío',
+                key: 'sent_state',
+                width: 20
+            },
+            {
+                header: 'fecha/hora',
+                key: 'sent_date',
+                width: 15
             }
         ];
-
+        const variablesExcluidas = ['IDENTIFICACION', 'NOMBRE', 'EMAIL'];
         // eslint-disable-next-line guard-for-in
         for (let p in templateVars) {
             let variable = templateVars[p];
-            columnas.push({
-                header: variable.toString().toLowerCase(),
-                key: variable.toString(),
-                width: 25
-            });
 
-            if (variable.toLowerCase() === 'email') {
+            if (variablesExcluidas.includes(variable.toUpperCase())) {
+                console.log('Eliminar (%s) por exclusion', variable);
+                delete templateVars[p];
+            } else {
                 columnas.push({
-                    header: 'estado envío',
-                    key: 'sent_state',
-                    width: 20
-                });
-                columnas.push({
-                    header: 'fecha/hora',
-                    key: 'sent_date',
-                    width: 15
+                    header: variable.toString().toLowerCase(),
+                    key: variable.toString(),
+                    width: 25
                 });
             }
         }
 
+        console.log('Template vars: ', templateVars);
         worksheet.columns = columnas;
 
         // eslint-disable-next-line guard-for-in
         for (let d in datosCampania) {
             let registro = datosCampania[d];
             let datos = JSON.parse(registro.customVariables);
-            console.log('Variables registro: ', datos);
+            // console.log('Variables registro: ', datos);
             let item = {
-                campaign: objCampaign.name
+                campaign: objCampaign.name,
+                identity: registro.indentity,
+                fullName: registro.fullName,
+                email: registro.email
             };
+
+            let resultado = 'NO ENVIADO';
+            let fechaEnvio = '';
+            // eslint-disable-next-line max-depth
+            if (registro.isSent === true) {
+                resultado = 'ENVIADO';
+                fechaEnvio = registro.sentDate.toISOString();
+                fechaEnvio = moment(fechaEnvio).format('DD-MM-YYYY HH:mm:SS');
+            }
+
+            // eslint-disable-next-line max-depth
+            if (registro.isSent !== true && registro.error === true) {
+                resultado =
+                    'NO ENVIADO - Problemas con el envío, con nuestros servers.';
+            }
+
+            // eslint-disable-next-line max-depth
+            if (registro.isValid === false) {
+                resultado = 'CORREO INVÁLIDO';
+            }
+
+            item['sent_state'] = resultado;
+            item['sent_date'] = fechaEnvio;
 
             // eslint-disable-next-line guard-for-in
             for (let v in templateVars) {
                 let campo = templateVars[v];
+                /*
+                if (variablesExcluidas.includes(campo.toUpperCase())) {
+                    console.log('Excluido: ', campo);
+                    return false;
+                }
+				*/
                 if (datos[campo] !== undefined) {
                     item[campo] = datos[campo].toString();
                 } else {
                     item[campo] = '';
                 }
-
-                if (campo.toLowerCase() === 'email') {
-                    let resultado = 'NO ENVIADO';
-                    let fechaEnvio = '';
-                    // eslint-disable-next-line max-depth
-                    if (registro.isSent === true) {
-                        resultado = 'ENVIADO';
-                        fechaEnvio = registro.sentDate.toISOString();
-                        fechaEnvio = moment(fechaEnvio).format(
-                            'DD-MM-YYYY HH:mm:SS'
-                        );
-                    }
-
-                    // eslint-disable-next-line max-depth
-                    if (registro.isSent !== true && registro.error === true) {
-                        resultado =
-                            'NO ENVIADO - Problemas con el envío, con nuestros servers.';
-                    }
-
-                    // eslint-disable-next-line max-depth
-                    if (registro.isValid === false) {
-                        resultado = 'CORREO INVÁLIDO';
-                    }
-
-                    item['sent_state'] = resultado;
-                    item['sent_date'] = fechaEnvio;
-                }
             }
 
-            console.log('Registro: ', item);
+            // console.log('Registro: ', item);
 
             worksheet.addRow(item);
         }
