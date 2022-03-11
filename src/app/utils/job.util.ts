@@ -85,7 +85,7 @@ const createJob = async (job) => {
             sendEmails(peticion);
         } else if (
             campania.status !== 'PAUSADO' &&
-            campania.status !== 'TERMINADO'
+            campania.status !== 'COMPLETADO'
         ) {
             console.log('Campaña (%s) no está en play.', campania.name);
             await setStateCampaign(

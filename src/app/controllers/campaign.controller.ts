@@ -238,8 +238,8 @@ export const playCampaign = async (req: Request, res: Response) => {
             console.log('Campaña no tiene registros por enviar');
             await setStateCampaign(
                 idCampaign,
-                'TERMINADO',
-                'Terminado por no tener pendientes.'
+                'COMPLETADO',
+                'COMPLETADO por no tener pendientes.'
             );
             return res.status(200).json({
                 success: false,
