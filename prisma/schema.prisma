@@ -22,20 +22,21 @@ model Template {
 }
 
 model Campaign {
-    id           Int            @id @default(autoincrement())
-    name         String         @db.VarChar(255)
-    subject      String         @db.VarChar(255)
-    schedule     Boolean        @default(false)
-    emailReponse String?
-    date         DateTime?
-    client       Int
-    idTemplate   Int
-    createdAt    DateTime       @default(now())
-    updatedAt    DateTime       @updatedAt
-    status       StatusCampaign @default(CARGADA)
-    template     Template       @relation(fields: [idTemplate], references: [id])
-    Jobs         Jobs[]
-    dataEmail    dataEmail[]
+    id            Int            @id @default(autoincrement())
+    name          String         @db.VarChar(255)
+    subject       String         @db.VarChar(255)
+    schedule      Boolean        @default(false)
+    emailReponse  String?
+    date          DateTime?
+    client        Int
+    idTemplate    Int
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    status        StatusCampaign @default(CARGADA)
+    statusMessage String?
+    template      Template       @relation(fields: [idTemplate], references: [id])
+    Jobs          Jobs[]
+    dataEmail     dataEmail[]
 
     @@index([idTemplate], map: "Campaign_idTemplate_fkey")
 }
