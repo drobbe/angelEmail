@@ -162,11 +162,10 @@ export const sendEmails = async (data) => {
                     ) {
                         console.log('Seteando replyTo (%s)', data.replyTo);
                         mail['replyTo'] = data.replyTo;
-                        /*
+
                         console.log('Enmascarar email');
                         mail['from'] =
                             '"' + data.name + '" <' + data.replyTo + '>';
-							*/
                     }
 
                     let sendInfo = await transporter[1].sendMail(mail);
