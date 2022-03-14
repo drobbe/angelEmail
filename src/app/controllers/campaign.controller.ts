@@ -38,9 +38,23 @@ export const createCampaign = async (req: any, res: Response) => {
     dataExcel = dataExcel.map((row) => {
         return {
             idCampaign: insert.id,
-            email: row.EMAIL.toString(),
-            indentity: row.IDENTIFICACION.toString(),
-            fullName: row.NOMBRE.toString(),
+            email: row[
+                Object.keys(row).find((key) => {
+                    return key.match(/^email$/i);
+                })
+            ].toString(),
+            indentity:
+                row[
+                    Object.keys(row).find((key) => {
+                        return key.match(/^identificacion$/i);
+                    })
+                ].toString(),
+            fullName:
+                row[
+                    Object.keys(row).find((key) => {
+                        return key.match(/^nombre$/i);
+                    })
+                ].toString(),
             customVariables: JSON.stringify(row)
         };
     });

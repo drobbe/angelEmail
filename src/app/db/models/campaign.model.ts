@@ -52,6 +52,12 @@ export const getCampaignsClientDateFilter = async (
     dateFilter: any
 ) => {
     try {
+        const start = new Date(dateFilter.start);
+        let endNumber = new Date(dateFilter.end);
+        const end = new Date(endNumber.getTime() + 86399999);
+
+        console.log(start, end);
+
         const data = await prisma.campaign.findMany({
             where: {
                 client: idClient,
@@ -59,8 +65,8 @@ export const getCampaignsClientDateFilter = async (
                     status: 'ELIMINADO'
                 },
                 AND: [
-                    { createdAt: { lte: new Date(dateFilter.end) } },
-                    { createdAt: { gte: new Date(dateFilter.start) } }
+                    { createdAt: { gte: start } },
+                    { createdAt: { lte: end } }
                 ]
             }
         });
