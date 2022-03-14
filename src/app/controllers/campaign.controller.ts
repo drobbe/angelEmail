@@ -48,6 +48,7 @@ export const createCampaign = async (req: any, res: Response) => {
 
     dataExcel = dataExcel.map((row) => {
         for (let k in row) {
+            k = k.toLocaleUpperCase();
             if (
                 k.replace(/\s/g, '') !== k &&
                 Object.prototype.hasOwnProperty.call(row, k)
@@ -55,8 +56,6 @@ export const createCampaign = async (req: any, res: Response) => {
                 row[k.replace(/\s/g, '-')] = row[k];
                 delete row[k];
             }
-
-            k = k.toLocaleUpperCase();
         }
 
         return {

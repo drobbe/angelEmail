@@ -16,7 +16,9 @@ const HTMLDecoderEncoder = require('html-encoder-decoder');
 export const getVariablesInHtml = (html: string): string[] => {
     const regex = /\|\|[A-z0-9]*\|\|/g;
 
-    const found = html.match(regex);
+    let found = html.match(regex);
+    found = found.map((f) => f.toLocaleUpperCase());
+
     return found;
 };
 
