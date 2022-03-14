@@ -90,10 +90,6 @@ export const createCampaign = async (req: any, res: Response) => {
         email = email === undefined ? '' : email.toString();
         indentity = indentity === undefined ? '' : indentity.toString();
         fullName = fullName === undefined ? '' : fullName.toString();
-        console.log(email);
-        console.log(indentity);
-        console.log(fullName);
-        console.log('_______________');
 
         return {
             idCampaign: insert.id,
