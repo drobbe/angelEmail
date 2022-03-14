@@ -35,7 +35,7 @@ export const makeHtml = (templateData, templateVariables) => {
             let valor = '';
             // eslint-disable-next-line no-prototype-builtins
             if (templateVariables[v] !== undefined) {
-                valor = templateVariables[v];
+                valor = templateVariables[v].toString().trim();
             }
             console.log('Variable: ', v, ' --- Valor:', templateVariables[v]);
             objVariables[v] = valor;
