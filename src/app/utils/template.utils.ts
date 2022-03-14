@@ -1,4 +1,5 @@
 const nunjucks = require('nunjucks');
+const moment = require('moment-timezone');
 
 nunjucks.configure({
     autoescape: true,
@@ -7,6 +8,11 @@ nunjucks.configure({
         variableEnd: '||'
     }
 });
+
+const convertDateExcel = (excelDate) => {
+    const unixTime = (excelDate - 25569) * 86400 * 1000;
+    return new Date(unixTime);
+};
 
 export const makeHtml = (templateData, templateVariables) => {
     try {
@@ -39,6 +45,12 @@ export const makeHtml = (templateData, templateVariables) => {
                     valor = templateVariables[v].trim();
                 } else if (typeof templateVariables[v] === 'number') {
                     valor = Number(templateVariables[v]).toString().trim();
+                }
+
+                if (/^4\d{4}/.test(valor)) {
+                    valor = moment(
+                        convertDateExcel(valor).toISOString()
+                    ).format('DD-MM-YYYY');
                 }
             }
             console.log('Variable: ', v, ' --- Valor:', templateVariables[v]);
