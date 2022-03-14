@@ -57,6 +57,14 @@ export const createCampaign = async (req: any, res: Response) => {
             }
         }
 
+        for (let k in row) {
+            let upper = k.toUpperCase();
+            if (upper !== k) {
+                row[upper] = row[k];
+                delete row[k];
+            }
+        }
+
         return {
             idCampaign: insert.id,
             email: row[
