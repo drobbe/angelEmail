@@ -47,6 +47,16 @@ export const createCampaign = async (req: any, res: Response) => {
     let dataExcel = await getDataXlsx(path);
 
     dataExcel = dataExcel.map((row) => {
+        for (let k in row) {
+            if (
+                k.replace(/\s/g, '') !== k &&
+                Object.prototype.hasOwnProperty.call(row, k)
+            ) {
+                row[k.replace(/\s/g, '-')] = row[k];
+                delete row[k];
+            }
+        }
+
         return {
             idCampaign: insert.id,
             email: row[
@@ -69,6 +79,8 @@ export const createCampaign = async (req: any, res: Response) => {
             customVariables: JSON.stringify(row)
         };
     });
+
+    console.log(dataExcel);
 
     await insertDataEmail(dataExcel);
 
