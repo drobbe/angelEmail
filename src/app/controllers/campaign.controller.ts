@@ -68,25 +68,38 @@ export const createCampaign = async (req: any, res: Response) => {
             }
         }
 
-        return {
-            idCampaign: insert.id,
-            email: row[
+        let email =
+            row[
                 Object.keys(row).find((key) => {
                     return key.match(/^email$/i);
                 })
-            ].toString(),
-            indentity:
-                row[
-                    Object.keys(row).find((key) => {
-                        return key.match(/^identificacion$/i);
-                    })
-                ].toString(),
-            fullName:
-                row[
-                    Object.keys(row).find((key) => {
-                        return key.match(/^nombre$/i);
-                    })
-                ].toString(),
+            ];
+        let indentity =
+            row[
+                Object.keys(row).find((key) => {
+                    return key.match(/^identificacion$/i);
+                })
+            ];
+        let fullName =
+            row[
+                Object.keys(row).find((key) => {
+                    return key.match(/^nombre$/i);
+                })
+            ];
+
+        email = email === undefined ? '' : email.toString();
+        indentity = indentity === undefined ? '' : indentity.toString();
+        fullName = fullName === undefined ? '' : fullName.toString();
+        console.log(email);
+        console.log(indentity);
+        console.log(fullName);
+        console.log('_______________');
+
+        return {
+            idCampaign: insert.id,
+            email: email,
+            indentity: indentity,
+            fullName: fullName,
             customVariables: JSON.stringify(row)
         };
     });
