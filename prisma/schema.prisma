@@ -1,106 +1,97 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+    provider = "mysql"
+    url      = env("DATABASE_URL")
 }
 
 model Template {
-  id              	Int        	@id @default(autoincrement())
-  client          	Int
-  name            	String
-  htmlTemplate    	String     	@db.MediumText
-  htmlJson        	String     	@db.MediumText
-  urlPreview      	String
-  base64Image     	String    	@db.MediumText
-  customVariables 	String?    	@db.TinyText
-  enable			Boolean		@default(true)
-  deleted			Boolean		@default(false)
-  Campaign        	Campaign[]
+    id              Int        @id @default(autoincrement())
+    client          Int
+    name            String
+    htmlTemplate    String     @db.MediumText
+    htmlJson        String     @db.MediumText
+    urlPreview      String
+    base64Image     String     @db.MediumText
+    customVariables String?    @db.TinyText
+    enable          Boolean?   @default(true)
+    deleted         Boolean?   @default(false)
+    Campaign        Campaign[]
 }
 
 model Campaign {
-  id         Int            @id @default(autoincrement())
-  name       String         @db.VarChar(255)
-  subject    String         @db.VarChar(255)
-  schedule   Boolean        @default(false)
-  emailReponse   String?    
-  date       DateTime?
-  client     Int
-  idTemplate Int
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-  status     StatusCampaign @default(CARGADA)
-  template   Template       @relation(fields: [idTemplate], references: [id])
-  Jobs       Jobs[]
-  dataEmail  dataEmail[]
+    id            Int            @id @default(autoincrement())
+    name          String         @db.VarChar(255)
+    subject       String         @db.VarChar(255)
+    schedule      Boolean        @default(false)
+    emailReponse  String?
+    date          DateTime?
+    client        Int
+    idTemplate    Int
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    status        StatusCampaign @default(CARGADA)
+    statusMessage String?
+    template      Template       @relation(fields: [idTemplate], references: [id])
+    Jobs          Jobs[]
+    dataEmail     dataEmail[]
 
-  @@index([idTemplate], map: "Campaign_idTemplate_fkey")
+    @@index([idTemplate], map: "Campaign_idTemplate_fkey")
 }
 
 model Jobs {
-  id         Int       @id @default(autoincrement())
-  idServer   Int?
-  idCampaign Int?
-  start      Int?
-  end        Int?
-  isRunning  Int?      @default(0) @db.TinyInt
-  created_at DateTime? @default(now()) @db.Timestamp(0)
-  updated_at DateTime? @default(now()) @db.Timestamp(0)
-  Campaign   Campaign? @relation(fields: [idCampaign], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "campaign_fk")
+    id         Int       @id @default(autoincrement())
+    idServer   Int?
+    idCampaign Int?
+    start      Int?
+    end        Int?
+    status     Int?      @default(0)
+    created_at DateTime? @default(now()) @db.Timestamp(0)
+    updated_at DateTime? @default(now()) @db.Timestamp(0)
+    Campaign   Campaign? @relation(fields: [idCampaign], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "campaign_fk")
 
-  @@index([idCampaign], map: "campaign")
-  @@index([idServer], map: "server")
+    @@index([idCampaign], map: "campaign")
+    @@index([idServer], map: "server")
 }
 
 model Servers {
-  id        Int       @id @default(autoincrement())
-  name      String    @db.VarChar(255)
-  host      String    @db.VarChar(255)
-  config    String    @db.LongText
-  sender    String    @db.LongText
-  active    Int?      @default(0) @db.TinyInt
-  createdAt DateTime? @default(now()) @db.Timestamp(0)
-  updatedAt DateTime? @default(now()) @db.Timestamp(0)
+    id        Int       @id @default(autoincrement())
+    name      String    @db.VarChar(255)
+    host      String    @db.VarChar(255)
+    config    String    @db.LongText
+    sender    String    @db.LongText
+    busy      Boolean?  @default(false)
+    active    Boolean?  @default(false)
+    createdAt DateTime? @default(now()) @db.Timestamp(0)
+    updatedAt DateTime? @default(now()) @db.Timestamp(0)
 }
 
 model dataEmail {
-  id              Int      @id @default(autoincrement())
-  indentity       String   @db.VarChar(255)
-  fullName        String   @db.VarChar(255)
-  customVariables String?  @db.MediumText
-  idCampaign      Int
-  email           String
-  isSent          Int?     @default(0) @db.TinyInt
-  sentId          String?  @db.VarChar(255)
-  error           Int?     @default(0) @db.TinyInt
-  errorMessage    String?  @db.Text
-  Campaign        Campaign @relation(fields: [idCampaign], references: [id], map: "DataEmail_idCampaign_fkey")
+    id              Int       @id @default(autoincrement())
+    indentity       String    @db.VarChar(255)
+    fullName        String    @db.VarChar(255)
+    customVariables String?   @db.MediumText
+    idCampaign      Int
+    email           String
+    isValid         Boolean?  @default(true)
+    isSent          Boolean?  @default(false)
+    sentId          String?   @db.VarChar(255)
+    sentDate        DateTime?
+    serverSent      Int?
+    error           Boolean?  @default(false)
+    errorMessage    String?   @db.Text
+    Campaign        Campaign  @relation(fields: [idCampaign], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "DataEmail_idCampaign_fkey")
 
-  @@index([idCampaign], map: "DataEmail_idCampaign_fkey")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
-model servidores_emails {
-  puerto_smtp           String? @db.VarChar(255)
-  servidor_correo       String? @db.VarChar(255)
-  Mail                  String? @db.VarChar(255)
-  Pass                  String? @db.VarChar(255)
-  accesos_web           String? @db.VarChar(255)
-  administracion_Zimbra String? @db.VarChar(255)
-  admin_usuario         String? @db.VarChar(255)
-  admin_pass            String? @db.VarChar(255)
-
-  @@ignore
+    @@index([idCampaign], map: "DataEmail_idCampaign_fkey")
 }
 
 enum StatusCampaign {
-  CARGADA
-  PAUSADO
-  PROCESANDO
-  COMPLETADO
-  ELIMINADO
-  ERROR
+    CARGADA
+    PAUSADO
+    PROCESANDO
+    COMPLETADO
+    ELIMINADO
+    ERROR
 }
