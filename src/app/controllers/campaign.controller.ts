@@ -52,16 +52,18 @@ export const createCampaign = async (req: any, res: Response) => {
                 k.replace(/\s/g, '') !== k &&
                 Object.prototype.hasOwnProperty.call(row, k)
             ) {
-                row[k.replace(/\s/g, '-')] = row[k];
+                row[k.replace(/\s/g, '')] = row[k];
                 delete row[k];
             }
         }
 
         for (let k in row) {
-            let upper = k.toUpperCase();
-            if (upper !== k) {
-                row[upper] = row[k];
-                delete row[k];
+            if (Object.prototype.hasOwnProperty.call(row, k)) {
+                let upper = k.toUpperCase();
+                if (upper !== k) {
+                    row[upper] = row[k];
+                    delete row[k];
+                }
             }
         }
 

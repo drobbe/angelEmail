@@ -17,7 +17,8 @@ export const getVariablesInHtml = (html: string): string[] => {
     const regex = /\|\|[A-z0-9]*\|\|/g;
 
     let found = html.match(regex);
-    found = found.map((f) => f.toLocaleUpperCase());
+    found = found.map((f) => f.toUpperCase());
+    found = [...new Set(found)];
 
     return found;
 };

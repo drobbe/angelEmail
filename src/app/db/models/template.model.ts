@@ -60,6 +60,9 @@ export const getTemplatesDB = async () => {
         const data = await prisma.template.findMany({
             where: {
                 deleted: false
+            },
+            orderBy: {
+                id: 'desc'
             }
         });
         return data;
