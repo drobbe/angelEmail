@@ -55,6 +55,8 @@ export const createCampaign = async (req: any, res: Response) => {
                 row[k.replace(/\s/g, '-')] = row[k];
                 delete row[k];
             }
+
+            k = k.toLocaleUpperCase();
         }
 
         return {
