@@ -30,10 +30,8 @@ export const previewFile = async function (req: any, res) {
     });
 
     let array = Object.entries(row).map(([k]) =>
-        quitarAcentos(k).toUpperCase()
+        quitarAcentos(k).toUpperCase().replace(/\s/g, '')
     );
-
-    console.log(array);
 
     const requiresColumns = ['NOMBRE', 'IDENTIFICACION', 'EMAIL'];
 
