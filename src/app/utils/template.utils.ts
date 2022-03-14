@@ -35,7 +35,11 @@ export const makeHtml = (templateData, templateVariables) => {
             let valor = '';
             // eslint-disable-next-line no-prototype-builtins
             if (templateVariables[v] !== undefined) {
-                valor = templateVariables[v];
+                if (typeof templateVariables[v] === 'string') {
+                    valor = templateVariables[v].trim();
+                } else if (typeof templateVariables[v] === 'number') {
+                    valor = Number(templateVariables[v]).toString().trim();
+                }
             }
             console.log('Variable: ', v, ' --- Valor:', templateVariables[v]);
             objVariables[v] = valor;
