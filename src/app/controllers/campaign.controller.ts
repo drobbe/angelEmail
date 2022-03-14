@@ -57,6 +57,7 @@ export const createCampaign = async (req: any, res: Response) => {
             }
         }
 
+        // eslint-disable-next-line guard-for-in
         for (let k in row) {
             let upper = k.toUpperCase();
             if (upper !== k) {
@@ -487,6 +488,11 @@ export const pauseCampaign = async (req: Request, res: Response) => {
     }
 };
 
+const convertDateExcel = (excelDate) => {
+    const unixTime = (excelDate - 25569) * 86400 * 1000;
+    return new Date(unixTime);
+};
+
 export const exportCampaign = async (req: Request, res: Response) => {
     try {
         let idCampaign = req.params.id;
@@ -642,6 +648,12 @@ export const exportCampaign = async (req: Request, res: Response) => {
                     return false;
                 }
 				*/
+                if (/^4\d{4}/.test(datos[campo])) {
+                    datos[campo] = moment(
+                        convertDateExcel(datos[campo]).toISOString()
+                    ).format('DD-MM-YYYY');
+                }
+
                 if (datos[campo] !== undefined) {
                     item[campo] = datos[campo].toString();
                 } else {
