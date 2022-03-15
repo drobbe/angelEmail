@@ -78,6 +78,9 @@ export const getTemplatesEnabledDB = async () => {
             where: {
                 deleted: false,
                 enable: true
+            },
+            orderBy: {
+                id: 'desc'
             }
         });
         return data;
