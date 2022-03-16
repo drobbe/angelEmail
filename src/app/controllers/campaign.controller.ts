@@ -235,6 +235,42 @@ export const playCampaignOld = async (req: Request, res: Response) => {
     });
 };
 
+export const deleteCampaign = async (req: Request, res: Response) => {
+    try {
+        let idCampaign = req.params.id;
+        if (
+            idCampaign === undefined ||
+            idCampaign === null ||
+            idCampaign === ''
+        ) {
+            console.log('Falta el id de la campaña');
+            return res.status(200).json({
+                success: false,
+                items: [],
+                msg: 'Faltan los datos requeridos.'
+            });
+        }
+        await setStateCampaign(
+            idCampaign,
+            'ELIMINADO',
+            'ELIMINADO por orden de la api.'
+        );
+
+        return res.status(200).json({
+            success: true,
+            items: [],
+            msg: 'Campaña Eliminada con éxito'
+        });
+    } catch (errors) {
+        console.log(errors);
+        console.log('contoller.campaigns.playCampaign:', errors.message);
+        return res.status(500).json({
+            success: false,
+            msg: errors.message
+        });
+    }
+};
+
 // eslint-disable-next-line require-await
 // eslint-disable-next-line complexity
 export const playCampaign = async (req: Request, res: Response) => {
