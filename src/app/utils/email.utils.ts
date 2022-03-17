@@ -114,6 +114,7 @@ export const sendEmails = async (data) => {
         recipients.forEach(async (recipient) => {
             try {
                 procesados += 1;
+                recipient.email = recipient.email.toString().trim();
                 if (isEmail(recipient.email)) {
                     console.log(
                         'Enviando (%s) por el servidor (%s) con la tarea (%s)',
@@ -288,11 +289,13 @@ const validaProcesados = async (idJob, procesados) => {
                 if (icola !== -1) delete colas[icola];
                 await setServerBusy(item.idServer, 0);
                 // console.log('Demasiados errores.');
+                /*
                 await setStateCampaign(
                     item.idCampaign,
                     'PAUSADO',
                     'Pausado por demasiados errores.'
                 );
+				*/
             }
             console.log('<============================');
         }
