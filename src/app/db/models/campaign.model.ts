@@ -10,11 +10,11 @@ export type Campaign = {
     idTemplate: number;
     schedule: boolean;
     emailReponse?: string;
+    sender: string;
 };
 
 export const insertCampaign = async (campaign: Campaign) => {
     try {
-        console.log(campaign);
         const data = await prisma.campaign.create({
             data: {
                 client: Number(campaign.client),
@@ -22,7 +22,8 @@ export const insertCampaign = async (campaign: Campaign) => {
                 subject: campaign.subject,
                 idTemplate: Number(campaign.idTemplate),
                 schedule: Boolean(Number(campaign.schedule)),
-                emailReponse: campaign.emailReponse
+                emailReponse: campaign.emailReponse,
+                sender: campaign.sender
             }
         });
 

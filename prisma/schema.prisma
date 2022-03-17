@@ -27,6 +27,7 @@ model Campaign {
     subject       String         @db.VarChar(255)
     schedule      Boolean        @default(false)
     emailReponse  String?
+    sender		  String		 @default("")
     date          DateTime?
     client        Int
     idTemplate    Int
