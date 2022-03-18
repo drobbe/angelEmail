@@ -114,7 +114,10 @@ export const sendEmails = async (data) => {
         recipients.forEach(async (recipient) => {
             try {
                 procesados += 1;
-                recipient.email = recipient.email.toString().trim();
+                recipient.email = recipient.email
+                    .toString()
+                    .replace(/\s+/g, '')
+                    .trim();
                 if (isEmail(recipient.email)) {
                     console.log(
                         'Enviando (%s) por el servidor (%s) con la tarea (%s)',
