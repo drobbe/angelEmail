@@ -50,6 +50,24 @@ export const getCampaignsClient = async (idClient: number) => {
     }
 };
 
+export const getAvailable = async (idCampaign: number) => {
+    try {
+        const data = await prisma.dataEmail.aggregate({
+            _count: {
+                id: true
+            },
+            where: {
+                idCampaign: idCampaign,
+                isSent: false
+            }
+        });
+
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 export const getCampaignsClientDateFilter = async (
     idClient: number,
     dateFilter: any

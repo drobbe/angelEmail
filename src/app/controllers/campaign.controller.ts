@@ -10,7 +10,8 @@ import {
     setStateCampaign,
     getCountBasePending,
     getRangeEmails,
-    getDataCampaign
+    getDataCampaign,
+    getAvailable
 } from '../db/models/campaign.model';
 import { getServersActive } from '../db/models/server.model';
 import { cleanJobsByCampaign, createJobs } from '../db/models/job.model';
@@ -141,6 +142,21 @@ export const listCampaign = async (req: Request, res: Response) => {
         message: 'Todo OK',
         status: true,
         data: campaigns
+    });
+};
+
+export const countCampaignAvailable = async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+    const data = await getAvailable(id);
+
+    log('info', {
+        msg: 'Listado con éxito'
+    });
+
+    return res.status(200).json({
+        message: 'Todo OK',
+        status: true,
+        data: data
     });
 };
 
