@@ -532,7 +532,7 @@ export const pauseCampaign = async (req: Request, res: Response) => {
             return res.status(200).json({
                 success: false,
                 items: [],
-                msg: 'Faltan lso datos requeridos.'
+                msg: 'Faltan los datos requeridos.'
             });
         }
 
