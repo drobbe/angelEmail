@@ -16,7 +16,10 @@ import {
     setJobStatus,
     setJobStart,
     getOneJobByServer,
-    getJobsByCampaing
+    getJobsByCampaing,
+    getJobsList,
+    cleanJobsByCampaign,
+    cleanAllJobs
 } from '../db/models/job.model';
 
 const maxIntentos = 3;
@@ -111,6 +114,12 @@ const checkJobs = async () => {
         let servidoresLibres = [];
 
         if (!campaniasActivas.length) {
+            const lista = await getJobsList();
+            // console.log('Lista de JOBS: ', lista);
+            if (lista > 0) {
+                console.log('Limpiando todas las tareas...');
+                await cleanAllJobs();
+            }
             console.log('No hay campañas activas');
             // await cleanAllJobs();
             await releaseAllServers();
@@ -152,14 +161,16 @@ const checkJobs = async () => {
 
             if (cuenta <= 0) {
                 console.log(
-                    'Campaña %s no tiene registros pendientes por enviar, pausando...',
+                    'Campaña %s no tiene registros pendientes por enviar, completado...',
                     campania.name
                 );
                 await setStateCampaign(
                     campania.id,
-                    'PAUSADO',
-                    'No tiene registros pendientes'
+                    'COMPLETADO',
+                    'No tiene registros pendientes, poner en completado'
                 );
+                console.log('Limpiando trabajos atrapados.');
+                await cleanJobsByCampaign(campania.id);
                 return false;
             }
         }
@@ -200,10 +211,13 @@ export const startJobs = async () => {
         if (heart === undefined) {
             heart = heartbeats.createHeart(intelvals);
             heart.createEvent(1, async (count, last) => {
-                console.log('Count (%s), last (%s)', count, last);
-                // console.log('Interval - (%s)', Date.toString());
                 intento += 1;
-                console.log('Intento #%s.', intento);
+                console.log(
+                    'Intento #%s, iteración (%s), última: %s',
+                    intento,
+                    count,
+                    last
+                );
                 await checkJobs();
                 if (intento >= maxIntentos) return stopJobs();
             });
