@@ -370,6 +370,24 @@ export const playCampaign = async (req: Request, res: Response) => {
 
         let jobs = Math.ceil(cantPendientes / limitByServer);
         let jobsByServer = Math.ceil(jobs / cantServer);
+        let estimacion = Math.round(((cantPendientes * 60) / 100) * cantServer);
+        console.log('Estimacion: ', estimacion);
+        let horas = Math.floor(estimacion / 3600);
+        // eslint-disable-next-line no-mixed-operators
+        let uno = horas * 3600;
+        let minutos = Math.floor((estimacion - uno) / 60);
+        let dos = minutos * 60;
+        let segundos = estimacion - uno - dos;
+        console.log('Horas: ', horas);
+        console.log('Minutos: ', minutos);
+        console.log('Segundos: ', segundos);
+        let mensajeEstimacion =
+            ', Tiempo estimado para envidar (' +
+            cantPendientes +
+            ') registros es de: ';
+        if (horas > 0) mensajeEstimacion += horas + ' hora(s)';
+        if (minutos > 0) mensajeEstimacion += minutos + ' minutos';
+        mensajeEstimacion += segundos + ' segundos';
         console.log('');
         console.log(
             '=========================================================================='
@@ -380,6 +398,12 @@ export const playCampaign = async (req: Request, res: Response) => {
             limitByServer,
             jobs,
             jobsByServer
+        );
+        console.log(
+            'Estimacion: %s:%s:%s',
+            horas.toString().padStart(2, '0'),
+            minutos.toString().padStart(2, '0'),
+            segundos.toString().padStart(2, '0')
         );
         console.log(
             '========================================================================='
@@ -466,7 +490,7 @@ export const playCampaign = async (req: Request, res: Response) => {
                 return res.status(200).json({
                     success: true,
                     items: [],
-                    msg: 'Campaña iniciada con éxito'
+                    msg: 'Campaña iniciada con éxito' + mensajeEstimacion
                 });
             }
             console.log('Sin trabajos');
@@ -701,7 +725,7 @@ export const pauseCampaign = async (req: Request, res: Response) => {
             return res.status(200).json({
                 success: false,
                 items: [],
-                msg: 'Faltan lso datos requeridos.'
+                msg: 'Faltan los datos requeridos.'
             });
         }
 

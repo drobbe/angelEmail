@@ -101,3 +101,43 @@ export const getJobsByCampaing = async (idCampaign) => {
         console.log(error);
     }
 };
+
+export const cleanJobsCompletedByCampaign = async (idCampaign) => {
+    try {
+        const data = await prisma.jobs.deleteMany({
+            where: {
+                idCampaign: Number(idCampaign),
+                status: 2
+            }
+        });
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const getJobsList = async () => {
+    try {
+        const data = await prisma.jobs.count({
+            where: {
+                status: { in: [0, 1, 2] }
+            }
+        });
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const cleanAllJobs = async () => {
+    try {
+        const data = await prisma.jobs.deleteMany({
+            where: {
+                status: { in: [0, 1, 2] }
+            }
+        });
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
