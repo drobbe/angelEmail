@@ -9,7 +9,7 @@ const schedule = require('node-schedule');
  */
 export default function () {
     console.log('Cargando Tareas de play programado');
-    schedule.scheduleJob('*/2 * * * *', async () => {
+    schedule.scheduleJob('*/10 * * * *', async () => {
         console.log(
             '- - - - - - - - | Iniciando Tarea de play programado | - - - - - - - - '
         );
