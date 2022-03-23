@@ -296,7 +296,7 @@
         "new-parens": "error",
         "no-array-constructor": "error",
         "no-lonely-if": "error",
-        "no-mixed-operators": "error",
+        // "no-mixed-operators": "error",
         "no-new-object": "error",
         "no-restricted-syntax": ["error", "WithStatement"],
         "no-whitespace-before-property": "error",

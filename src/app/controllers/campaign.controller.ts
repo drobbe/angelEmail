@@ -41,7 +41,8 @@ export const createCampaign = async (req: any, res: Response) => {
         idTemplate: req.body.idTemplate,
         schedule: req.body.schedule,
         emailReponse: req.body.emailReponse,
-        sender: req.body.sender
+        sender: req.body.sender,
+        finalDate: req.body.finalDate
     });
 
     const path = './' + req.file.path.replace('\\', '/');
@@ -493,6 +494,198 @@ export const playCampaign = async (req: Request, res: Response) => {
             success: false,
             msg: errors.message
         });
+    }
+};
+
+export const playCampaignWithoutRquest = async (idCampaign: number) => {
+    try {
+        let objCampaign = await getCampaign(idCampaign);
+        if (objCampaign === null) {
+            console.log('Campaña no válida o no existe');
+            return {
+                success: false,
+                items: [],
+                msg: 'Campaña no válida o no existe.'
+            };
+        }
+        if (objCampaign.status === 'PROCESANDO') {
+            console.log('Campaña ya esta en play');
+            return {
+                success: false,
+                items: [],
+                msg: 'Error, la campaña ya se está ejecuntando.'
+            };
+        }
+        if (
+            objCampaign.status !== 'PAUSADO' &&
+            objCampaign.status !== 'CARGADA'
+        ) {
+            console.log('Campaña en etatus no valido (%s)', objCampaign.status);
+            return {
+                success: false,
+                items: [],
+                msg: 'Error, la campaña posee un estado no válido para dar play.'
+            };
+        }
+
+        const cantPendientes = await getCountBasePending(idCampaign);
+        console.log('Pendientes:', cantPendientes);
+        if ((<any>cantPendientes).count <= 0 || cantPendientes <= 0) {
+            console.log('Campaña no tiene registros por enviar');
+            await setStateCampaign(
+                idCampaign,
+                'COMPLETADO',
+                'COMPLETADO por no tener pendientes.'
+            );
+            return {
+                success: false,
+                items: [],
+                msg: 'Error, la campaña no posee resgistros pendientes por enviar.'
+            };
+        }
+
+        const lstServers = await getServersActive();
+        const cantServer = lstServers.length;
+        if (!cantServer) {
+            console.log('-NO- hay servidores disponibles');
+            await setStateCampaign(
+                idCampaign,
+                'PAUSADO',
+                'Pausado por no haber servidores disponibles.'
+            );
+            return {
+                success: false,
+                items: [],
+                msg: 'Error, los servicios no estan diponibles, favor intente más tarde.'
+            };
+        }
+
+        let jobs = Math.ceil(cantPendientes / limitByServer);
+        let jobsByServer = Math.ceil(jobs / cantServer);
+        console.log('');
+        console.log(
+            '=========================================================================='
+        );
+        console.log(
+            '===> Records (%s), limit by server (%s), jobs (%s), by server (%s) <===',
+            cantPendientes,
+            limitByServer,
+            jobs,
+            jobsByServer
+        );
+        console.log(
+            '========================================================================='
+        );
+        console.log('');
+
+        let lstIdServers = lstServers.map((s) => s.id);
+        if (lstIdServers.length > 1) {
+            lstIdServers = lstIdServers.sort(() => {
+                return 0.5 - Math.random();
+            });
+            console.log('');
+            console.log(
+                '=========================================================================='
+            );
+            console.log('Salida IDs aleatorios: ', lstIdServers);
+            console.log(
+                '========================================================================='
+            );
+            console.log('');
+        }
+        let lstJobs = [],
+            inicio = 0;
+        for (let j = 1; j <= jobsByServer; j++) {
+            // console.log('Job: ', j);
+            for (let s in lstIdServers) {
+                if (inicio < cantPendientes) {
+                    const rangeIdRecords = await getRangeEmails({
+                        idCampaign: objCampaign.id,
+                        inicio,
+                        limitByServer
+                    });
+                    console.log('Rangos: ', rangeIdRecords);
+                    // eslint-disable-next-line max-depth
+                    if (rangeIdRecords === null) {
+                        console.log('No hay rangos.');
+                        return false;
+                    }
+
+                    // eslint-disable-next-line max-depth
+                    if (
+                        (<any>rangeIdRecords).inicio === null ||
+                        (<any>rangeIdRecords).hasta === null
+                    ) {
+                        console.log('No tiene rangos.');
+                        return false;
+                    }
+
+                    lstJobs.push([
+                        objCampaign.id,
+                        lstIdServers[s],
+                        0,
+                        (<any>rangeIdRecords).inicio,
+                        (<any>rangeIdRecords).hasta
+                    ]);
+                    inicio += limitByServer;
+                }
+            }
+        }
+
+        if (lstJobs.length) {
+            console.log('');
+            console.log(
+                '=========================================================================='
+            );
+            console.log('Iniciar (%s) trabajos', lstJobs.length);
+            await cleanJobsByCampaign(objCampaign.id);
+            console.log('Limpieza...');
+            const resultCreate = await createJobs(lstJobs);
+            console.log('Create: ', resultCreate);
+            if ((<any>resultCreate).count > 0) {
+                console.log('¡¡Jobs creados!!');
+                await setStateCampaign(
+                    idCampaign,
+                    'PROCESANDO',
+                    'Procesando por orden de play de la API.'
+                );
+                console.log('Iniciando...');
+                jobsUtil.startJobs();
+                console.log(
+                    '=========================================================================='
+                );
+                console.log('');
+                return {
+                    success: true,
+                    items: [],
+                    msg: 'Campaña iniciada con éxito'
+                };
+            }
+            console.log('Sin trabajos');
+        } else {
+            await setStateCampaign(
+                idCampaign,
+                'PAUSADO',
+                'Sin trabajos que crear'
+            );
+            console.log('NO hay trabajos a ejecutar');
+            console.log(
+                '=========================================================================='
+            );
+            console.log('');
+            return {
+                success: false,
+                items: [],
+                msg: 'Error, no se pudo iniciar'
+            };
+        }
+    } catch (errors) {
+        console.log(errors);
+        console.log('contoller.campaigns.playCampaign:', errors.message);
+        return {
+            success: false,
+            msg: errors.message
+        };
     }
 };
 

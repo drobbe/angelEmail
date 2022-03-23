@@ -11,10 +11,15 @@ export type Campaign = {
     schedule: boolean;
     emailReponse?: string;
     sender: string;
+    finalDate?: string;
 };
 
 export const insertCampaign = async (campaign: Campaign) => {
     try {
+        const date = new Date(Number(campaign.finalDate));
+        const correctDate = new Date(
+            Date.parse(date.toUTCString()) - date.getTimezoneOffset() * 60000
+        );
         const data = await prisma.campaign.create({
             data: {
                 client: Number(campaign.client),
@@ -23,7 +28,8 @@ export const insertCampaign = async (campaign: Campaign) => {
                 idTemplate: Number(campaign.idTemplate),
                 schedule: Boolean(Number(campaign.schedule)),
                 emailReponse: campaign.emailReponse,
-                sender: campaign.sender
+                sender: campaign.sender,
+                date: correctDate
             }
         });
 
@@ -284,6 +290,17 @@ export const getDataCampaign = async (idCampaign) => {
             }
         });
         return data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const getDelayedCampaings = async () => {
+    try {
+        let result =
+            await prisma.$queryRaw`SELECT id FROM campaign WHERE status = 'CARGADA' AND schedule = 1 AND date > now()`;
+        // if ((<any>result).length) result = result;
+        return result as any[];
     } catch (error) {
         console.log(error);
     }
